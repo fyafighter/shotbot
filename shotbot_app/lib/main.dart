@@ -1,13 +1,4 @@
 import 'package:flutter/material.dart';
-
-//RANDOM MODE blur_on → const IconData
-//const IconData(58277, fontFamily: 'MaterialIcons')
-
-//Edges: border_outer → const IconData
-//const IconData(57903, fontFamily: 'MaterialIcons')
-
-//Grounders: border_bottom → const IconData
-//const IconData(57897, fontFamily: 'MaterialIcons')
 void main() => runApp(ShotbotApp());
 
 class ShotbotApp extends StatelessWidget {
@@ -37,12 +28,11 @@ class _ShotbotPageState extends State<ShotbotPage> {
   int _counter = 0;
   bool _connected = false;
 
-  var modes = {
+
+  var _buttons = {
     'random': false,
     'edges': false, 
     'grounders': false,
-  };
-  var relays = {
     'pan': false,
     'pitch': false, 
     'up': false,
@@ -63,15 +53,32 @@ class _ShotbotPageState extends State<ShotbotPage> {
     });
   }
 
+  Color _getColor(name){
+    if (_buttons[name]) return Colors.blue;
+    else return Colors.black;
+  }
+
+  void _onPress(name){
+    setState(() { 
+      if (_buttons[name]) _buttons[name] = false;
+      else _buttons[name] = true;
+    });
+  }
+
+  @override
+  initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget buttonSection = Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(color, Icons.blur_on, 'Random'),
-          _buildButtonColumn(color, Icons.border_outer, 'Edges'),
-          _buildButtonColumn(color, Icons.call_missed_outgoing, 'Grounders'),
+          _buildButtonColumn(color, Icons.blur_on, 'random'),
+          _buildButtonColumn(color, Icons.border_outer, 'edges'),
+          _buildButtonColumn(color, Icons.call_missed_outgoing, 'grounders'),
         ],
       ),
     );
@@ -80,8 +87,8 @@ class _ShotbotPageState extends State<ShotbotPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(Colors.black, Icons.code, 'Pan'),
-          _buildButtonColumn(Colors.black, Icons.exit_to_app, 'Pitch'),
+          _buildButtonColumn(Colors.black, Icons.code, 'pan'),
+          _buildButtonColumn(Colors.black, Icons.exit_to_app, 'pitch'),
         ],
       ),
     );
@@ -90,8 +97,8 @@ class _ShotbotPageState extends State<ShotbotPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(Colors.black, Icons.arrow_upward, 'Up'),
-          _buildButtonColumn(Colors.black, Icons.arrow_downward, 'Down'),
+          _buildButtonColumn(Colors.black, Icons.arrow_upward, 'up'),
+          _buildButtonColumn(Colors.black, Icons.arrow_downward, 'down'),
         ],
       ),
     );
@@ -171,9 +178,10 @@ class _ShotbotPageState extends State<ShotbotPage> {
       children: [
         IconButton(
               icon: Icon(icon),
-              color: color,
+              color: _getColor(label),
               tooltip: 'label',
               onPressed: () {
+                _onPress(label);
               },
             ),
         Container(
