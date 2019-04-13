@@ -44,10 +44,10 @@ class Relay:
       signal.signal(signal.SIGALRM, self.timeoutRelay)
       signal.alarm(self.timeout)
 
-relay1 = Relay("Auto", 4, 5)
-relay2 = Relay("Up", 22, 30)
-relay3 = Relay("Down", 6, 30)
-relay4 = Relay("Power", 26, 90)
+relay1 = Relay("auto", 4, 5)
+relay2 = Relay("up", 22, 30)
+relay3 = Relay("down", 6, 30)
+relay4 = Relay("pitch", 26, 90)
 
 while True:
     choice = raw_input("> ")

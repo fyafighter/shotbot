@@ -26,8 +26,6 @@ class ShotbotPage extends StatefulWidget {
 }
 
 class _ShotbotPageState extends State<ShotbotPage> {
-  int _counter = 0;
-  bool _connected = false;
 
   var _buttons = {
     'random': false,
@@ -47,15 +45,46 @@ class _ShotbotPageState extends State<ShotbotPage> {
   }
 
   void _onPress(name){
+    var result = commandShotbot(name);
+    print(result);
     setState(() { 
-      if (_buttons[name]) _buttons[name] = false;
-      else _buttons[name] = true;
+      _buttons["random"] = false;
+      _buttons["edges"] = false;
+      _buttons["grounders"] = false;
+      _buttons[name] = true;
     });
   }
 
+  Future<http.Response> fetchShotbotState() async {
+    final response = await http.get('http://10.0.2.2:5000/api');
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON
+      print(response.body);
+      return response;
+      //return Post.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      throw Exception('Failed to load shotbot');
+    }
+  }
+
+  Future<http.Response> commandShotbot(name) async {
+    final response = await http.post('http://10.0.2.2:5000/command?switch='+name);
+    if (response.statusCode == 200) {
+      // If server returns an OK response, parse the JSON
+      print(response.body);
+      return response;
+      //return Post.fromJson(json.decode(response.body));
+    } else {
+      // If that response was not OK, throw an error.
+      //throw Exception('Failed to command shotbot');
+      return response;
+    }
+  }
   @override
   initState() {
     super.initState();
+    fetchShotbotState();
   }
 
   @override

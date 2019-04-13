@@ -13,14 +13,14 @@ class GPIO:
     return
   @staticmethod
   def setup(x, y):
-    print("setup!")
+    print("setup debug")
   @staticmethod
   def input(x):
-    print("input!")
+    print("input debug")
     return 1
   @staticmethod
   def output(x,y):
-    print("switched!")
+    print("switched debug")
 
 def timeoutRelay(relay):
   print('Timeout after '+str(relay.timeout)+' for relay')
@@ -88,12 +88,13 @@ class Relay:
       self.switchOn()
 
 relays = {
-  "auto": Relay("auto", 4, 90), 
+  "pan": Relay("pan", 4, 90), 
   "up": Relay("up", 22, 30), 
   "down": Relay("down", 6, 30), 
-  "power": Relay("power", 26, 90)
+  "pitch": Relay("pitch", 26, 90)
 }
 
+transition_queue = []
 engaged=False
 
 app = Flask(__name__) #create the Flask app
@@ -106,15 +107,43 @@ def processRelayState(relay_list):
   for r in relay_list:
     print(r)
 
-@app.route('/api', methods=['POST', 'GET'])
-def api():
+@app.route('/relay', methods=['POST', 'GET'])
+def relay():
     if (request.method=='POST'):
         for r in request.json['relays']:
           relays[r['name']].setState(r['state'])
-        #return ""
     return jsonify(relays=[r.serialize() for r in relays.values()])
 
-@app.route('/engage', methods=['POST'])
+@app.route('/command', methods=['POST'])
+def command():
+  command_param = request.args.get("switch")
+  print(command_param)
+  if (command_param in relays):
+    relays[command_param].switch()
+    return jsonify(relays[command_param].state)
+  else:
+    print("A macro command! Do cool stuff!")
+    if (command_param=='grounders'): grounder_shots()
+    elif (command_param=='edges'): edge_shots()
+    elif (command_param=='random'): random_shots()
+    elif (command_param=='level'): level()
+    else: shutdown()
+    return("Running "+ command_param)
+
+def random_shots():
+  print("Running random mode")
+
+def edge_shots():
+  print("Running random mode")
+
+def grounder_shots():
+  print("Running grounder mode")
+
+def level():
+  print("Leveling")
+
+def shutdown():
+  print("Shutting down")
 
 #state
 #transitions
@@ -126,12 +155,12 @@ def api():
 
 
 def engage():
-  relays['auto'].switchOn()
+  relays['pan'].switchOn()
   #For 90 seconds go up and down at random intervals of no more than 10 seconds in each direction. 
   #Do a level motion at the end
   total = 0
   engaged=True
-  relays['auto'].switchOn()
+  relays['pan'].switchOn()
   relays['up'].switchOn()
   time.sleep(5)
   relays['down'].switchOn()
@@ -146,7 +175,7 @@ def engage():
   time.sleep(5)
   relays['up'].switchOn()
   time.sleep(5)
-  relays['auto'].switchOff()
+  relays['pan'].switchOff()
   
   engaged=False
   #while(total<90):
