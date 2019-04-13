@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 void main() => runApp(ShotbotApp());
 
 class ShotbotApp extends StatelessWidget {
@@ -13,7 +15,6 @@ class ShotbotApp extends StatelessWidget {
       home: ShotbotPage(title: 'Shotbot!'),
     );
   }
-
 }
 
 class ShotbotPage extends StatefulWidget {
@@ -28,7 +29,6 @@ class _ShotbotPageState extends State<ShotbotPage> {
   int _counter = 0;
   bool _connected = false;
 
-
   var _buttons = {
     'random': false,
     'edges': false, 
@@ -40,18 +40,6 @@ class _ShotbotPageState extends State<ShotbotPage> {
   };
 
   String _shotbotUrl="http://192.168.86.100/";
-  Color color = Colors.blue;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
 
   Color _getColor(name){
     if (_buttons[name]) return Colors.blue;
@@ -76,9 +64,9 @@ class _ShotbotPageState extends State<ShotbotPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(color, Icons.blur_on, 'random'),
-          _buildButtonColumn(color, Icons.border_outer, 'edges'),
-          _buildButtonColumn(color, Icons.call_missed_outgoing, 'grounders'),
+          _buildButtonColumn(Icons.blur_on, 'random'),
+          _buildButtonColumn(Icons.border_outer, 'edges'),
+          _buildButtonColumn(Icons.call_missed_outgoing, 'grounders'),
         ],
       ),
     );
@@ -87,8 +75,8 @@ class _ShotbotPageState extends State<ShotbotPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(Colors.black, Icons.code, 'pan'),
-          _buildButtonColumn(Colors.black, Icons.exit_to_app, 'pitch'),
+          _buildButtonColumn(Icons.code, 'pan'),
+          _buildButtonColumn(Icons.exit_to_app, 'pitch'),
         ],
       ),
     );
@@ -97,8 +85,8 @@ class _ShotbotPageState extends State<ShotbotPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
-          _buildButtonColumn(Colors.black, Icons.arrow_upward, 'up'),
-          _buildButtonColumn(Colors.black, Icons.arrow_downward, 'down'),
+          _buildButtonColumn(Icons.arrow_upward, 'up'),
+          _buildButtonColumn(Icons.arrow_downward, 'down'),
         ],
       ),
     );
@@ -131,7 +119,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: color,
+              color: Colors.blue,
             ),
           ),
           buttonSection,
@@ -171,7 +159,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
     );
   } // Build
   
-  Column _buildButtonColumn(Color color, IconData icon, String label) {
+  Column _buildButtonColumn(IconData icon, String label) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -179,7 +167,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
         IconButton(
               icon: Icon(icon),
               color: _getColor(label),
-              tooltip: 'label',
+              tooltip: label,
               onPressed: () {
                 _onPress(label);
               },
@@ -191,7 +179,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w400,
-              color: color,
+              color: Colors.blue,
             ),
           ),
         ),
