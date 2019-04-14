@@ -5,7 +5,6 @@ import 'dart:async';
 void main() => runApp(ShotbotApp());
 
 class ShotbotApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -121,10 +120,10 @@ class _ShotbotPageState extends State<ShotbotPage> {
       // If server returns an OK response, parse the JSON
       print(response.body);
       return response;
-      //return Post.fromJson(json.decode(response.body));
     } else {
       // If that response was not OK, throw an error.
-      throw Exception('Failed to load shotbot');
+      //throw Exception('Failed to load shotbot');
+      return response;
     }
   }
 
