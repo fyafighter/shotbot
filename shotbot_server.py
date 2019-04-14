@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# coding=utf-8
 from flask import Flask, jsonify, request #import main Flask class and request object
 import os, json, threading, time, random
 
@@ -122,7 +124,6 @@ def command():
     relays[command_param].switch()
     return jsonify(relays[command_param].state)
   else:
-    print("A macro command! Do cool stuff!")
     if (command_param=='grounders'): grounder_shots()
     elif (command_param=='edges'): edge_shots()
     elif (command_param=='random'): random_shots()
@@ -143,6 +144,7 @@ def random_shots():
   #5 = down
 
   last_move = 2
+  relays['pitch'].switchOn()
   for x in range(18):
     #transition!
     this_move = random.randint(0,5)
@@ -194,7 +196,6 @@ def grounder_shots():
   time.sleep(5)
   relays['up'].switchOff()
   relays['pitch'].switchOff()
-  
 
 def level():
   shutdown()
@@ -217,42 +218,6 @@ def stop_moving():
   relays['up'].switchOff()
   relays['pan'].switchOff()
   relays['down'].switchOff()
-#state
-#transitions
-  #also never do up/up or down/down
-  #up/pan
-  #down/pan
-  #up
-  #down
-  #stop
-
-
-def engage():
-  relays['pan'].switchOn()
-  #For 90 seconds go up and down at random intervals of no more than 10 seconds in each direction. 
-  #Do a level motion at the end
-  total = 0
-  engaged=True
-  relays['pan'].switchOn()
-  relays['up'].switchOn()
-  time.sleep(5)
-  relays['down'].switchOn()
-  time.sleep(5)
-  relays['up'].switchOn()
-  time.sleep(5)
-  relays['down'].switchOn()
-  time.sleep(5)
-  relays['up'].switchOn()
-  time.sleep(5)
-  relays['down'].switchOn()
-  time.sleep(5)
-  relays['up'].switchOn()
-  time.sleep(5)
-  relays['pan'].switchOff()
-  
-  engaged=False
-  #while(total<90):
-  return jsonify(relays=[r.serialize() for r in relays.values()])
 
 if __name__ == '__main__':
     app.run(port=5000, debug=True)
