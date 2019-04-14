@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'dart:async';
 
 void main() => runApp(ShotbotApp());
 
@@ -37,7 +38,32 @@ class _ShotbotPageState extends State<ShotbotPage> {
     'down': false,
   };
 
-  String _shotbotUrl="http://192.168.86.100/";
+  String _shotbotUrl="http://192.168.86.100:5000/";
+
+  Timer _timer;
+  int _start = 10;
+
+  void startTimer() {
+    _start = 90;
+    _timer?.cancel();
+    const oneSec = const Duration(seconds: 1);
+    _timer = new Timer.periodic(
+        oneSec,
+        (Timer timer) => setState(() {
+              if (_start < 1) {
+                _resetButtons();
+                timer.cancel();
+              } else {
+                _start--;
+              }
+            }));
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    super.dispose();
+  }
 
   Color _getColor(name){
     if (_buttons[name]) return Colors.blue;
@@ -46,17 +72,51 @@ class _ShotbotPageState extends State<ShotbotPage> {
 
   void _onPress(name){
     var result = commandShotbot(name);
+    startTimer();
     print(result);
-    setState(() { 
+    setState(() {
+      if((name=='random')||(name=='grounders')||(name=='edges')){
+        _buttons["random"] = false;
+        _buttons["edges"] = false;
+        _buttons["grounders"] = false;
+        _buttons[name] = true;
+      } else {
+        if (_buttons[name]) _buttons[name] = false;
+        else _buttons[name] = true;
+      }
+    });
+  }
+
+  void _resetButtons(){
       _buttons["random"] = false;
       _buttons["edges"] = false;
-      _buttons["grounders"] = false;
-      _buttons[name] = true;
+      _buttons["pan"] = false;
+      _buttons["pitch"] = false;
+      _buttons["up"] = false;
+      _buttons["down"] = false;
+  }
+
+  void _onShutdown(){
+    var result = commandShotbot("shutdown");
+    print(result);
+    _timer?.cancel();
+    setState(() {
+      _resetButtons();
+    });
+  }
+
+  void _onLevel(){
+    _start = 45;
+    var result = commandShotbot("level");
+    print(result);
+    _timer?.cancel();
+    setState(() {
+      _resetButtons();
     });
   }
 
   Future<http.Response> fetchShotbotState() async {
-    final response = await http.get('http://10.0.2.2:5000/api');
+    final response = await http.get(_shotbotUrl + "relay");
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
       print(response.body);
@@ -69,7 +129,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
   }
 
   Future<http.Response> commandShotbot(name) async {
-    final response = await http.post('http://10.0.2.2:5000/command?switch='+name);
+    final response = await http.post(_shotbotUrl + 'command?switch='+name);
     if (response.statusCode == 200) {
       // If server returns an OK response, parse the JSON
       print(response.body);
@@ -85,6 +145,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
   initState() {
     super.initState();
     fetchShotbotState();
+    _start=10;
   }
 
   @override
@@ -167,7 +228,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
           SizedBox(
             width: double.infinity,
             child: RaisedButton(
-              onPressed: () {},
+              onPressed: () {_onLevel();},
               shape: StadiumBorder(),
               child: const Text('Level'),
             ),
@@ -176,13 +237,21 @@ class _ShotbotPageState extends State<ShotbotPage> {
           SizedBox(
             width: double.infinity,
             child: RaisedButton(
-              onPressed: () {},
+              onPressed: () {_onShutdown();},
               shape: StadiumBorder(),
               color: Colors.redAccent,
               textColor: Colors.white,
               child: const Text('Shutdown'),
             ),
-          )
+          ),
+          Text(
+            "Timer " + _start.toString(),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w400,
+              color: Colors.blue,
+            ),
+          ),
         ],
         )
     );

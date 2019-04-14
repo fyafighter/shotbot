@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request #import main Flask class and request object
-import os, json, threading, time
+import os, json, threading, time, random
 
 class GPIO:
   @staticmethod
@@ -132,26 +132,99 @@ def command():
 
 def random_shots():
   print("Running random mode")
+  # there are 18 times slots (90/5 - the ball shoots about every 5 seconds)
+  ##transitions
+  #also never do up/up or down/down
+  #0 = up
+  #1 = up+pan
+  #2 = stop
+  #3 = pan
+  #4 = down+pan
+  #5 = down
+
+  last_move = 2
+  for x in range(18):
+    #transition!
+    this_move = random.randint(0,5)
+    
+    while((this_move > 3) and (last_move > 3)):
+      print("Can't do 2 downs in a row "+ str(this_move))
+      this_move = random.randint(0,5)
+    while((this_move < 2) and (last_move < 2)):
+      print("Can't do 2 up in a row "+ str(this_move))
+      this_move = random.randint(0,5)
+
+    last_move = this_move
+    stop_moving()
+    if this_move==0:
+      print("Random move is up next")
+      relays['up'].switchOn()
+    elif this_move == 1:
+      print("Random move is up/pan next")
+      relays['up'].switchOn()
+      relays['pan'].switchOn()
+    elif this_move == 2:
+      print("Random move is stop next")
+    elif this_move == 3:
+      print("Random move is pan next")
+      relays['pan'].switchOn() 
+    elif this_move == 4:
+      print("Random move is pan/down next")
+      relays['pan'].switchOn()
+      relays['down'].switchOn()
+    elif this_move == 5:
+      print("Random move is down next")
+      relays['down'].switchOn()
+    time.sleep(2)
 
 def edge_shots():
-  print("Running random mode")
+  print("Edge shots don't currently work; going random.")
+  random_shots()
 
 def grounder_shots():
+  shutdown()
   print("Running grounder mode")
+  relays['pan'].switchOn()
+  relays['pitch'].switchOn()
+  relays['down'].switchOn()
+  time.sleep(5)
+  relays['down'].switchOff()
+  time.sleep(85)
+  relays['up'].switchOn()
+  time.sleep(5)
+  relays['up'].switchOff()
+  relays['pitch'].switchOff()
+  
 
 def level():
+  shutdown()
   print("Leveling")
+  relays['up'].switch()
+  time.sleep(30)
+  relays['up'].switch()
+  relays['down'].switch()
+  time.sleep(14)
+  relays['down'].switch()
 
 def shutdown():
+  relays['up'].switchOff()
+  relays['pan'].switchOff()
+  relays['down'].switchOff()
+  relays['pitch'].switchOff()
   print("Shutting down")
 
+def stop_moving():
+  relays['up'].switchOff()
+  relays['pan'].switchOff()
+  relays['down'].switchOff()
 #state
 #transitions
-#up/pan
-#down/pan
-#up
-#down
-#stop
+  #also never do up/up or down/down
+  #up/pan
+  #down/pan
+  #up
+  #down
+  #stop
 
 
 def engage():
