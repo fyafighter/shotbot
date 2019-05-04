@@ -59,16 +59,16 @@ class Relay:
     #time, so we will try to avoid that.
     if (self.name=='up') and GPIO.input(6):
       print("Received a signal that to move up but down is currently on. Switching")
-      GPIO.output(6, GPIO.LOW)
-    elif (self.name=='down') and GPIO.input(22):
+      GPIO.output(6, GPIO.HIGH)
+    elif (self.name=='down') and GPIO.input(13):
       print("Get the status of the up relay. If it is on. Switch it off")
-      GPIO.output(22, GPIO.LOW)
-    GPIO.output(self.pin, GPIO.HIGH)
+      GPIO.output(22, GPIO.HIGH)
+    GPIO.output(self.pin, GPIO.LOW)
 
   def switchOff(self):
     self.state = 0
     print("Turn off " + self.name + " on pin " +str(self.pin) + " and resetting timer.")
-    GPIO.output(self.pin, GPIO.LOW)
+    GPIO.output(self.pin, GPIO.HIGH)
     if self.timer:
       self.timer.cancel()
 
@@ -90,10 +90,12 @@ class Relay:
       self.switchOn()
 
 relays = {
-  "pan": Relay("pan", 4, 90), 
-  "up": Relay("up", 22, 30), 
-  "down": Relay("down", 6, 30), 
-  "pitch": Relay("pitch", 26, 90)
+  "pan": Relay("pan", 5, 90), 
+  "up": Relay("up", 6, 30), 
+  "down": Relay("down", 13, 30), 
+  "pitch": Relay("pitch", 20, 90),
+  "left": Relay("left", 16, 90),
+  "right": Relay("right",19 , 90)
 }
 
 transition_queue = []
@@ -212,12 +214,16 @@ def shutdown():
   relays['pan'].switchOff()
   relays['down'].switchOff()
   relays['pitch'].switchOff()
+  relays['left'].switchOff()
+  relays['right'].switchOff()
   print("Shutting down")
 
 def stop_moving():
   relays['up'].switchOff()
   relays['pan'].switchOff()
   relays['down'].switchOff()
+  relays['left'].switchOff()
+  relays['right'].switchOff()
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
