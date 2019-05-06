@@ -30,11 +30,13 @@ class _ShotbotPageState extends State<ShotbotPage> {
   var _buttons = {
     'random': false,
     'edges': false, 
-    'grounders': false,
+    'bouncers': false,
     'pan': false,
     'pitch': false, 
     'up': false,
     'down': false,
+    'left': false,
+    'right': false,
   };
 
   String _shotbotUrl="http://192.168.86.100:5000/";
@@ -74,10 +76,10 @@ class _ShotbotPageState extends State<ShotbotPage> {
     startTimer();
     print(result);
     setState(() {
-      if((name=='random')||(name=='grounders')||(name=='edges')){
+      if((name=='random')||(name=='bouncers')||(name=='edges')){
         _buttons["random"] = false;
         _buttons["edges"] = false;
-        _buttons["grounders"] = false;
+        _buttons["bouncers"] = false;
         _buttons[name] = true;
       } else {
         if (_buttons[name]) _buttons[name] = false;
@@ -93,6 +95,8 @@ class _ShotbotPageState extends State<ShotbotPage> {
       _buttons["pitch"] = false;
       _buttons["up"] = false;
       _buttons["down"] = false;
+      _buttons["left"] = false;
+      _buttons["right"] = false;
   }
 
   void _onShutdown(){
@@ -155,7 +159,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
         children: [
           _buildButtonColumn(Icons.blur_on, 'random'),
           _buildButtonColumn(Icons.border_outer, 'edges'),
-          _buildButtonColumn(Icons.call_missed_outgoing, 'grounders'),
+          _buildButtonColumn(Icons.call_missed_outgoing, 'bouncers'),
         ],
       ),
     );
@@ -170,6 +174,15 @@ class _ShotbotPageState extends State<ShotbotPage> {
       ),
     );
 
+    Widget leftRightSection = Container(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildButtonColumn(Icons.arrow_back, 'left'),
+          _buildButtonColumn(Icons.arrow_forward, 'right'),
+        ],
+      ),
+    );
     Widget upDownSection = Container(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -221,7 +234,9 @@ class _ShotbotPageState extends State<ShotbotPage> {
             ),
           ),
           panPitchSection,
-          SizedBox(height: 30),
+          SizedBox(height: 20),
+          leftRightSection,
+          SizedBox(height: 20),
           upDownSection,
           SizedBox(height: 20),
           SizedBox(
