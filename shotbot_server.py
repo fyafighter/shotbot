@@ -93,7 +93,7 @@ relays = {
   "pan": Relay("pan", 5, 90), 
   "up": Relay("up", 6, 30), 
   "down": Relay("down", 13, 30), 
-  "pitch": Relay("pitch", 20, 90),
+  "pitch": Relay("pitch", 26, 90),
   "left": Relay("left", 16, 90),
   "right": Relay("right",19 , 90)
 }
@@ -126,7 +126,7 @@ def command():
     relays[command_param].switch()
     return jsonify(relays[command_param].state)
   else:
-    if (command_param=='grounders'): grounder_shots()
+    if (command_param=='bouncers'): grounder_shots()
     elif (command_param=='edges'): edge_shots()
     elif (command_param=='random'): random_shots()
     elif (command_param=='level'): level()
@@ -145,16 +145,16 @@ def random_shots():
   #4 = down+pan
   #5 = down
 
-  last_move = 2
+  last_vert = 0
   relays['pitch'].switchOn()
   for x in range(18):
     #transition!
     this_move = random.randint(0,5)
     
-    while((this_move > 3) and (last_move > 3)):
+    while((this_move > 3) and (last_vert > 3)):
       print("Can't do 2 downs in a row "+ str(this_move))
       this_move = random.randint(0,5)
-    while((this_move < 2) and (last_move < 2)):
+    while((this_move < 2) and (last_vert < 2)):
       print("Can't do 2 up in a row "+ str(this_move))
       this_move = random.randint(0,5)
 
@@ -163,10 +163,12 @@ def random_shots():
     if this_move==0:
       print("Random move is up next")
       relays['up'].switchOn()
+      last_vert = 1
     elif this_move == 1:
       print("Random move is up/pan next")
       relays['up'].switchOn()
       relays['pan'].switchOn()
+      last_vert = 1
     elif this_move == 2:
       print("Random move is stop next")
     elif this_move == 3:
@@ -176,10 +178,12 @@ def random_shots():
       print("Random move is pan/down next")
       relays['pan'].switchOn()
       relays['down'].switchOn()
+      last_vert = 4
     elif this_move == 5:
       print("Random move is down next")
       relays['down'].switchOn()
-    time.sleep(2)
+      last_vert = 4
+    time.sleep(5)
 
 def edge_shots():
   print("Edge shots don't currently work; going random.")
@@ -202,12 +206,12 @@ def grounder_shots():
 def level():
   shutdown()
   print("Leveling")
-  relays['up'].switch()
+  relays['up'].switchOn()
   time.sleep(30)
-  relays['up'].switch()
-  relays['down'].switch()
+  relays['up'].switchOff()
+  relays['down'].switchOn()
   time.sleep(14)
-  relays['down'].switch()
+  relays['down'].switchOff()
 
 def shutdown():
   relays['up'].switchOff()
