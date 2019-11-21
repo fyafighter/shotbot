@@ -1,5 +1,5 @@
-import os, json, threading, time, random, signal
-
+import os, json, threading, time, random
+from datetime import datetime, timedelta  
 class GPIO:
   @staticmethod
   def OUT():
@@ -24,6 +24,7 @@ class GPIO:
 def timeoutRelay(relay):
   print('Timeout after '+str(relay.timeout)+' for relay')
   relay.switchOff()
+  relay.completion_time = None
  
 class Relay:
   def __init__(self, name, pin, timeout=10):
@@ -31,6 +32,7 @@ class Relay:
     self.pin = pin
     self.state = 0
     self.timer = None
+    self.completion_time = False
     GPIO.setup(pin, GPIO.OUT)
     self.timeout = timeout
     print(self.name + " is currently off")
@@ -52,6 +54,7 @@ class Relay:
     print("Turn on " + self.name + " on pin " + str(self.pin) + " and setting timeout to " + str(self.timeout))
     self.timer = threading.Timer(self.timeout, timeoutRelay, args=[self])
     self.timer.start()
+    self.completion_time = datetime.now() + timedelta(seconds=self.timeout)
     #CAUTION: We do not know what the motor will do if we signal up and down at the same
     #time, so we will try to avoid that.
     if (self.name=='up') and GPIO.input(6):
@@ -85,3 +88,8 @@ class Relay:
       self.switchOff()
     else:
       self.switchOn()
+  
+  def time_remaining(self):
+    if self.completion_time:
+      return (self.completion_time - datetime.now()).seconds
+    return 0
