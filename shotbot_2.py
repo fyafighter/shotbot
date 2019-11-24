@@ -1,6 +1,6 @@
 #!flask/bin/python
 from flask import Flask, jsonify, request
-from shotbot import Shotbot, Relay
+from shotbot import Bot, Relay
 
 app = Flask(__name__)
 targets = [1,1]

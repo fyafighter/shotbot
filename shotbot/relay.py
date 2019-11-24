@@ -1,5 +1,6 @@
 import os, json, threading, time, random
-from datetime import datetime, timedelta  
+from datetime import datetime, timedelta
+
 class GPIO:
   @staticmethod
   def OUT():
@@ -79,7 +80,7 @@ class Relay:
     self.changeGPIO(GPIO.HIGH)
     if self.timer and self.timer.is_alive():
       self.timer.cancel()
-      time.sleep(0.2)
+      time.sleep(0.1)
       if self.timer.is_alive():
         print("Failed to kill the time out thread")
         time.sleep(self.timeout)
