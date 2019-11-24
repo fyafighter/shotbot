@@ -28,9 +28,40 @@ class Bot:
         
     def get_target(self):
         return [self.target_x, self.target_y]
+
+    def execute_move(self, x_move, y_move):
+        #Stop all movements before beginning a move command
+        #This is done to prevent potentially sending "left and right"
+        # or "up AND down" at the same time.
+        self.relays['right'].switchOff()
+        self.relays['left'].switchOff()
+        self.relays['up'].switchOff()
+        self.relays['down'].switchOff()
+        self.relays['pan'].switchOff()
+        total_move_seconds = 0
+        if (x_move>0):
+            total_move_seconds += x_move * self.h_rate
+            self.relays['right'].switchOn(x_move * self.h_rate)
+            print("Moving right " + str(total_move_seconds))
+        elif (x_move<0):
+            total_move_seconds += abs(x_move) * self.h_rate
+            self.relays['left'].switchOn(abs(x_move) * self.h_rate)
+            print("Moving left " + str(total_move_seconds))
+
+        if (y_move>0):
+            print("Moving up")
+            if (abs(y_move) * self.h_rate>total_move_seconds): 
+                total_move_seconds += abs(y_move) * self.h_rate
+            self.relays['up'].switchOn(abs(y_move) * self.h_rate)
+            print("Moving up " + str(total_move_seconds))
+        elif (y_move<0):
+            if (abs(y_move) * self.h_rate>total_move_seconds): 
+                total_move_seconds += abs(y_move) * self.h_rate
+            self.relays['down'].switchOn(abs(y_move) * self.h_rate)
+            print("Moving down " + str(total_move_seconds))
+        return total_move_seconds
     
     def set_target(self, target_x, target_y):
-        move = [0,0]
         x_move = 0
         y_move = 0
         if ((target_x>3) or (target_y>3) or (target_x<1) or (target_y<1)):
@@ -53,7 +84,7 @@ class Bot:
                 y_move = target_y - self.target_y
             self.target_x = target_x
             self.target_y = target_y
-        return [x_move, y_move]
+        return [x_move, y_move, self.execute_move(x_move, y_move)]
 
     def get_relays(self):
         return self.relays

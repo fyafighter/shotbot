@@ -33,13 +33,24 @@ class TestRelays(unittest.TestCase):
         relay.switchOn()
         self.assertTrue(relay.time_remaining()>3)
 
-    def testTimedSwitch(self):
+    def test_timed_switch(self):
         relay = Relay("timeout_test", 3, 5)
         relay.switchOn(8)
         self.assertTrue(relay.time_remaining()>6)
         self.assertTrue(relay.timer.is_alive())
         time.sleep(8.1)
         self.assertFalse(relay.timer.is_alive())
+    
+    def test_switch_off(self):
+        relay = Relay("switchoff_test", 4, 5)
+        relay.switchOn()
+        self.assertTrue(relay.time_remaining()>3)
+        self.assertTrue(relay.timer.is_alive())
+        relay.switchOff()
+        time.sleep(0.5)
+        self.assertFalse(relay.timer.is_alive())
+        self.assertFalse(relay.state)
+        self.assertTrue(relay.time_remaining()==0)
 
 if __name__ == '__main__': 
-    unittest.main() 
+    unittest.main()

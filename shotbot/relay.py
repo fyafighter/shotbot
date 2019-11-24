@@ -12,18 +12,17 @@ class GPIO:
     return
   @staticmethod
   def setup(x, y):
-    print("setup debug")
+    return 1
   @staticmethod
   def input(x):
-    print("input debug")
     return 1
   @staticmethod
   def output(x,y):
-    print("switched debug")
+    return
 
 def timeoutRelay(relay):
-  print('Timeout after '+str(relay.countdown)+' for relay')
-  relay.switchOff()
+  print('Timeout after '+str(relay.countdown)+' for ' + relay.name)
+  relay.changeGPIO(GPIO.HIGH)
   relay.completion_time = None
  
 class Relay:
@@ -64,19 +63,29 @@ class Relay:
     #CAUTION: We do not know what the motor will do if we signal up and down at the same
     #time, so we will try to avoid that.
     if (self.name=='up') and GPIO.input(6):
-      print("Received a signal that to move up but down is currently on. Switching")
+      print("Received a signal to move up but down is currently on. Switching")
       GPIO.output(6, GPIO.HIGH)
     elif (self.name=='down') and GPIO.input(13):
       print("Get the status of the up relay. It is on. Switch it off")
       GPIO.output(22, GPIO.HIGH)
     GPIO.output(self.pin, GPIO.LOW)
 
+  def changeGPIO(self, gpio):
+    GPIO.output(self.pin, gpio)
+
   def switchOff(self):
     self.state = 0
     print("Turn off " + self.name + " on pin " +str(self.pin) + " and resetting timer.")
-    GPIO.output(self.pin, GPIO.HIGH)
-    if self.timer:
+    self.changeGPIO(GPIO.HIGH)
+    if self.timer and self.timer.is_alive():
       self.timer.cancel()
+      time.sleep(0.2)
+      if self.timer.is_alive():
+        print("Failed to kill the time out thread")
+        time.sleep(self.timeout)
+      else: 
+        print("Killed the timer")
+        self.completion_time = None
 
   def setState(self, state):
     if state!=self.state:
