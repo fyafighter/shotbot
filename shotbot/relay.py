@@ -22,7 +22,7 @@ class GPIO:
     print("switched debug")
 
 def timeoutRelay(relay):
-  print('Timeout after '+str(relay.timeout)+' for relay')
+  print('Timeout after '+str(relay.countdown)+' for relay')
   relay.switchOff()
   relay.completion_time = None
  
@@ -35,6 +35,7 @@ class Relay:
     self.completion_time = False
     GPIO.setup(pin, GPIO.OUT)
     self.timeout = timeout
+    self.countdown = timeout
     print(self.name + " is currently off")
 
   def serialize(self):
@@ -49,12 +50,17 @@ class Relay:
     print(self.name +" is  "+str(GPIO.input(self.pin)))
     self.state=GPIO.input(self.pin)
 
-  def switchOn(self):
+  def switchOn(self, countdown=-1):
     self.state = 1
-    print("Turn on " + self.name + " on pin " + str(self.pin) + " and setting timeout to " + str(self.timeout))
-    self.timer = threading.Timer(self.timeout, timeoutRelay, args=[self])
+    if (countdown==-1):
+      print("Using default timeout for the relay")
+      self.countdown = self.timeout
+    else:
+      self.countdown = countdown
+    print("Turn on " + self.name + " on pin " + str(self.pin) + " and setting timeout to " + str(self.countdown))
+    self.timer = threading.Timer(self.countdown, timeoutRelay, args=[self])
     self.timer.start()
-    self.completion_time = datetime.now() + timedelta(seconds=self.timeout)
+    self.completion_time = datetime.now() + timedelta(seconds=self.countdown)
     #CAUTION: We do not know what the motor will do if we signal up and down at the same
     #time, so we will try to avoid that.
     if (self.name=='up') and GPIO.input(6):
@@ -91,5 +97,6 @@ class Relay:
   
   def time_remaining(self):
     if self.completion_time:
+      print((self.completion_time - datetime.now()).seconds)
       return (self.completion_time - datetime.now()).seconds
     return 0
