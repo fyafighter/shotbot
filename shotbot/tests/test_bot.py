@@ -52,6 +52,18 @@ class TestBot(unittest.TestCase):
         self.assertEqual(self.shotbot.relays['left'].state, 1)
         self.assertTrue(self.shotbot.relays['left'].time_remaining()>4)
         self.assertTrue(self.shotbot.relays['left'].timer.is_alive())
+    
+    def test_calibration(self):
+        self.shotbot.set_target(3,3)
+        self.assertEqual(self.shotbot.get_target(), [3,3])
+        self.shotbot.calibrate_center()
+        self.assertEqual(self.shotbot.get_target(), [2,2])
+
+    def test_manual_move(self):
+        self.shotbot.manual_move("up", 5)
+        self.assertEqual(self.shotbot.relays['up'].state, 1)
+        self.assertTrue(self.shotbot.relays['up'].timer.is_alive())
+        self.assertTrue(self.shotbot.relays['up'].time_remaining()>3)
         
 if __name__ == '__main__': 
     unittest.main() 

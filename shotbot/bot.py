@@ -29,6 +29,14 @@ class Bot:
     def get_target(self):
         return [self.target_x, self.target_y]
 
+    def calibrate_center(self):
+        self.target_x = 2
+        self.target_y = 2
+        return self.get_target()
+
+    def manual_move(self, relay, timeout):
+        self.relays[relay].switchOn(timeout)
+
     def execute_move(self, x_move, y_move):
         #Stop all movements before beginning a move command
         #This is done to prevent potentially sending "left and right"
