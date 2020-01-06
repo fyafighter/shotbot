@@ -19,8 +19,8 @@ class TestServer(unittest.TestCase):
         self.assertEqual(response.status_code, 200)
         json_data = json.loads(response.data.decode('utf-8'))
         self.assertEqual(json_data['target'], [2,2])
-        response = self.app.put('/target', data=jsonify(target=[3,3]))
+        response = self.app.put('target', json={'target':[3,3]})
+        json_data = response.get_json()
         self.assertEqual(response.status_code, 200)
-        json_data = json.loads(response.data.decode('utf-8'))
-        self.assertEqual(json_data['target'], [3,2])
-
+        self.assertEqual(json_data['target'], [3,3])
+        

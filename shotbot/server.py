@@ -1,6 +1,8 @@
 from flask import Flask, jsonify, request
 from bot import Bot
 import os, json, threading, time, random
+from redis import Redis
+import rq
 
 bot = Bot("main_bot")
 bot_target_queue = {}
@@ -16,9 +18,8 @@ def target():
         return jsonify(target=bot.get_target())
     elif(request.method=='PUT'):
         time.sleep(bot.set_target(request.json['target'][0], request.json['target'][1])[2])
-        #print("Setting the target" + str(move_time))
+        print("Setting the target")
     return jsonify(target= bot.get_target())
-
 
 @app.route('/shotmode', methods=['PUT'])
 def shotmode():
@@ -43,4 +44,6 @@ def control():
 
 if __name__ == '__main__':
     bot = Bot("main_bot")
+    app.redis = Redis.from_url("redis://")
+    app.task_queue = rq.Queue('shotbot-tasks', connection=app.redis)
     app.run(host='0.0.0.0', port=5000, debug=True)

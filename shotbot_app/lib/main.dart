@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 void main() => runApp(ShotbotApp());
 
@@ -40,6 +42,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
   };
 
   String _shotbotUrl="http://192.168.86.100:5000/";
+
 
   Timer _timer;
   int _start = 10;
@@ -119,16 +122,21 @@ class _ShotbotPageState extends State<ShotbotPage> {
   }
 
   Future<http.Response> fetchShotbotState() async {
-    final response = await http.get(_shotbotUrl + "relay");
-    if (response.statusCode == 200) {
-      // If server returns an OK response, parse the JSON
-      print(response.body);
-      return response;
-    } else {
-      // If that response was not OK, throw an error.
-      //throw Exception('Failed to load shotbot');
-      return response;
+    try {
+      final response = await http.get(_shotbotUrl + "relay");
+      if (response.statusCode == 200) {
+        // If server returns an OK response, parse the JSON
+        print(response.body);
+        return response;
+      } else {
+        // If that response was not OK, throw an error.
+        throw Exception('Failed to load shotbot');
+        //return response;
+      }
+    } on SocketException {
     }
+
+    
   }
 
   Future<http.Response> commandShotbot(name) async {

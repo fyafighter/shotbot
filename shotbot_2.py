@@ -1,16 +1,46 @@
-#!flask/bin/python
 from flask import Flask, jsonify, request
 from shotbot import Bot, Relay
+import os, json, threading, time, random
 
+bot = Bot("main_bot")
+bot_target_queue = {}
 app = Flask(__name__)
-targets = [1,1]
 
-@app.route('/tasks', methods=['GET', 'POST'])
-def tasks():
-    if (request.method=='POST'):
-        print "saving some shit"
-        targets = request.json['target']
-    return jsonify({'target': targets})
+@app.route('/')
+def index():
+  return 'Shotbot is online.'
+
+@app.route('/target', methods=['PUT', 'GET'])
+def target():
+    if (request.method=='GET'):
+        return jsonify(target=bot.get_target())
+    elif(request.method=='PUT'):
+        time.sleep(bot.set_target(request.json['target'][0], request.json['target'][1])[2])
+        #print("Setting the target" + str(move_time))
+    return jsonify(target= bot.get_target())
+
+
+@app.route('/shotmode', methods=['PUT'])
+def shotmode():
+    if (request.method=='GET'):
+        if request.json['target'].mode == 'edges':
+            print("Running edges mode")
+        elif request.json['target'].mode == 'bouncers':
+            print("Running bouncers mode")
+        elif request.json['target'].mode == 'random':
+            print("Running random mode")
+
+@app.route('/status', methods=['GET', 'PUT'])
+def status():
+    if (request.method=='GET'):
+        return jsonify(status="online")
+
+@app.route('/control', methods=['GET', 'PUT'])
+def control():
+    if (request.method=='PUT'):
+        request.json['relay']
+        return jsonify(status="online")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    bot = Bot("main_bot")
+    app.run(host='0.0.0.0', port=5000, debug=True)
