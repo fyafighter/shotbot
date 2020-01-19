@@ -5,6 +5,8 @@ import os, json, threading, time, random
 bot = Bot("main_bot")
 bot_target_queue = {}
 app = Flask(__name__)
+app_settings = os.getenv("APP_SETTINGS")
+app.config.from_object(app_settings)
 
 @app.route('/')
 def index():
@@ -41,4 +43,4 @@ def control():
 
 if __name__ == '__main__':
     bot = Bot("main_bot")
-    app.run(host='0.0.0.0', port=5000, debug=True)
+    app.run(host='0.0.0.0', port=5000)

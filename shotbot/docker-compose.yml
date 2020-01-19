@@ -1,0 +1,36 @@
+version: '3.7'
+
+services:
+
+  api:
+    build: .
+    image: api
+    container_name: api
+    ports:
+      - 5004:5000
+    command: python server.py
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - FLASK_DEBUG=1
+      - APP_SETTINGS=config.DevelopmentConfig
+    depends_on:
+      - redis
+
+  worker:
+    image: api
+    command: python worker.py
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - APP_SETTINGS=config.DevelopmentConfig
+    depends_on:
+      - redis
+
+  redis:
+    #image: arm32v7/redis
+    image: redis:5.0.7-alpine
+    ports:
+      - 6379:6379
+    #docker run --name redis -d -p 127.0.0.1:6379:6379 --restart unless-stopped arm32v7/redis --appendonly yes --maxmemory 512mb --tcp-backlog 128
+  
