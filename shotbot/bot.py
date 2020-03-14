@@ -1,5 +1,5 @@
 from relay import Relay
-import redis
+import redis, time
 from rq import Queue, Connection
 from flask import current_app
 
@@ -25,6 +25,9 @@ class Bot:
             "right": Relay("right",19 , 90),
             "pitch": Relay("pitch", 26, 90)
         }
+        print("Initializing bot and ensuring relays are off")
+        for relay in self.relays:
+            self.relays[relay].switchOff() 
 
     def get_name(self):
         return self.name
@@ -39,6 +42,7 @@ class Bot:
 
     def manual_move(self, relay, timeout):
         self.relays[relay].switchOn(timeout)
+        time.sleep(timeout)
 
     def execute_move(self, x_move, y_move):
         #Stop all movements before beginning a move command
@@ -70,6 +74,7 @@ class Bot:
                 total_move_seconds += abs(y_move) * self.h_rate
             self.relays['down'].switchOn(abs(y_move) * self.h_rate)
             print("Moving down " + str(total_move_seconds))
+        time.sleep(total_move_seconds)
         return total_move_seconds
     
     def set_target(self, target_x, target_y):
@@ -95,14 +100,15 @@ class Bot:
                 y_move = target_y - self.target_y
             self.target_x = target_x
             self.target_y = target_y
-        with Connection(redis.from_url("redis://redis:6379/0")):
-        #with Connection(redis.from_url(current_app.config["REDIS_URL"])):
+        #with Connection(redis.from_url("redis://redis:6379/0")):
+        with Connection(redis.from_url(current_app.config["REDIS_URL"])):
             q = Queue()
             task = q.enqueue(self.execute_move, x_move, y_move)
-        #redis_conn = Redis()
-        #q = Queue(connection=redis_conn)
-        #task = q.enqueue(self.execute_move, x_move, y_move)
         return [x_move, y_move, task]
+
+    def center(self):
+        self.relays['up'].switchOn(30)
+        self.relays['down'].switchOn(15)
 
     def get_relays(self):
         return self.relays

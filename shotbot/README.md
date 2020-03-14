@@ -1,4 +1,4 @@
-Shotbot is a goalie training system.
+udo pip install virtualenvhotbot is a goalie training system.
 
 It runs on a raspberry pi.
 

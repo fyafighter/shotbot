@@ -1,25 +1,7 @@
 import os, json, threading, time, random
 from datetime import datetime, timedelta
-
-class GPIO:
-  @staticmethod
-  def OUT():
-    return
-  @staticmethod
-  def LOW():
-    return
-  @staticmethod
-  def HIGH():
-    return
-  @staticmethod
-  def setup(x, y):
-    return 1
-  @staticmethod
-  def input(x):
-    return 1
-  @staticmethod
-  def output(x,y):
-    return
+import RPi.GPIO as GPIO
+GPIO.setmode(GPIO.BCM)
 
 def timeoutRelay(relay):
   print('Timeout after '+str(relay.countdown)+' for ' + relay.name)
@@ -36,6 +18,7 @@ class Relay:
     GPIO.setup(pin, GPIO.OUT)
     self.timeout = timeout
     self.countdown = timeout
+    GPIO.setup(self.pin, GPIO.OUT)
     print(self.name + " is currently off")
 
   def serialize(self):
@@ -47,8 +30,17 @@ class Relay:
         }
 
   def check(self):
+    GPIO.setup(self.pin, GPIO.IN)
     print(self.name +" is  "+str(GPIO.input(self.pin)))
     self.state=GPIO.input(self.pin)
+    GPIO.setup(self.pin, GPIO.OUT)
+
+  def check_pin(self, pin):
+    GPIO.setup(pin, GPIO.IN)
+    status = GPIO.input(self.pin)
+    print(str(pin) +" is  "+str(status))
+    GPIO.setup(pin, GPIO.OUT)
+    return status
 
   def switchOn(self, countdown=-1):
     self.state = 1
@@ -63,15 +55,16 @@ class Relay:
     self.completion_time = datetime.now() + timedelta(seconds=self.countdown)
     #CAUTION: We do not know what the motor will do if we signal up and down at the same
     #time, so we will try to avoid that.
-    if (self.name=='up') and GPIO.input(6):
+    if (self.name=='up') and (self.check_pin(6)==0):
       print("Received a signal to move up but down is currently on. Switching")
       GPIO.output(6, GPIO.HIGH)
-    elif (self.name=='down') and GPIO.input(13):
+    elif (self.name=='down') and (self.check_pin(13)==0):
       print("Get the status of the up relay. It is on. Switch it off")
       GPIO.output(22, GPIO.HIGH)
     GPIO.output(self.pin, GPIO.LOW)
 
   def changeGPIO(self, gpio):
+    GPIO.setup(self.pin, GPIO.OUT)
     GPIO.output(self.pin, gpio)
 
   def switchOff(self):

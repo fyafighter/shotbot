@@ -28,8 +28,8 @@ services:
       - redis
 
   redis:
-    #image: arm32v7/redis
-    image: redis:5.0.7-alpine
+    image: arm32v7/redis
+    #image: redis:5.0.7-alpine
     ports:
       - 6379:6379
     #docker run --name redis -d -p 127.0.0.1:6379:6379 --restart unless-stopped arm32v7/redis --appendonly yes --maxmemory 512mb --tcp-backlog 128
