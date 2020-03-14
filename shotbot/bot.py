@@ -40,9 +40,20 @@ class Bot:
         self.target_y = 2
         return self.get_target()
 
-    def manual_move(self, relay, timeout):
+    def manual_move(self, relay, timeout=15):
+        self.relays[relay].switchOn(timeout)
+
+    def execute_manual_move(self, relay, timeout):
         self.relays[relay].switchOn(timeout)
         time.sleep(timeout)
+
+    def all_stop(self):
+        with Connection(redis.from_url(current_app.config["REDIS_URL"])):
+            q = Queue()
+            print("Emptying worker queue. Current Size: " + str(q.count))
+            q.empty()
+        for relay in self.relays:
+            self.relays[relay].switchOff()
 
     def execute_move(self, x_move, y_move):
         #Stop all movements before beginning a move command
@@ -100,15 +111,17 @@ class Bot:
                 y_move = target_y - self.target_y
             self.target_x = target_x
             self.target_y = target_y
-        #with Connection(redis.from_url("redis://redis:6379/0")):
         with Connection(redis.from_url(current_app.config["REDIS_URL"])):
             q = Queue()
+            print("Queue size: " + str(q.count))
             task = q.enqueue(self.execute_move, x_move, y_move)
         return [x_move, y_move, task]
 
     def center(self):
         self.relays['up'].switchOn(30)
+        time.sleep(30)
         self.relays['down'].switchOn(15)
+        time.sleep(15)
 
     def get_relays(self):
         return self.relays

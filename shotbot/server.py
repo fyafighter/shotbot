@@ -20,6 +20,24 @@ def target():
         bot.set_target(request.json['target'][0], request.json['target'][1])
     return jsonify(target=bot.get_target())
 
+@app.route('/stop', methods=['PUT'])
+def stop():
+    if(request.method=='PUT'):
+        bot.all_stop()
+    return jsonify(target=bot.get_target())
+
+@app.route('/relay', methods=['PUT'])
+def relay():
+    if(request.method=='PUT'):
+        bot.manual_move(request.json['relay'], request.json['timeout'])
+    return jsonify(target=bot.get_target())
+
+@app.route('/center', methods=['PUT'])
+def center():
+    if(request.method=='PUT'):
+        bot.center()
+    return jsonify(target=bot.get_target())
+
 @app.route('/shotmode', methods=['PUT'])
 def shotmode():
     if (request.method=='GET'):
@@ -33,7 +51,7 @@ def shotmode():
 @app.route('/status', methods=['GET', 'PUT'])
 def status():
     if (request.method=='GET'):
-        return jsonify(status="online")
+        return jsonify(status="online", relays=bot.get)
 
 @app.route('/control', methods=['GET', 'PUT'])
 def control():
