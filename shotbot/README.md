@@ -22,3 +22,12 @@ sudo apt-get install -y python python-pip
 sudo apt-get remove python-configparser
 
 Add vm.overcommit_memory = 1 to /etc/sysctl.conf
+
+Deploy the application
+
+#Manual setup (without docker)
+sudo pip install virtualenv
+sudo pip3 install virtualenv
+virtualenv shotbot
+source shotbot/bin/activate
+pip install -r requirements.txt
