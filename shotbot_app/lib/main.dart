@@ -43,7 +43,6 @@ class _ShotbotPageState extends State<ShotbotPage> {
 
   String _shotbotUrl="http://192.168.86.100:5000/";
 
-
   Timer _timer;
   int _start = 10;
 
@@ -263,7 +262,7 @@ class _ShotbotPageState extends State<ShotbotPage> {
               shape: StadiumBorder(),
               color: Colors.redAccent,
               textColor: Colors.white,
-              child: const Text('Shutdown'),
+              child: const Text('Stop'),
             ),
           ),
           Text(
