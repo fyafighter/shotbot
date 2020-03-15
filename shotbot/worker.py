@@ -5,11 +5,6 @@ from flask import Flask
 from bot import Bot
 bot = Bot("main_bot")
 r = bot.get_relays()
-#r['up'].switchOff()
-#r['down'].switchOff()
-#bot.manual_move("up", 10)
-#time.sleep(11)
-#bot.manual_move("down", 10)
 
 app = Flask(
         __name__,
