@@ -17,8 +17,8 @@ def command():
   command_param = request.args.get("switch")
   print(command_param)
   if (command_param in bot.get_relays()):
-    bot.manual_move(command_param, 30)
-    return jsonify(bot.get_relays())
+    bot.enqueue_manual_move(command_param)
+    return ("[]")
   else:
     if (command_param=='bouncers'): grounder_shots()
     elif (command_param=='edges'): edge_shots()
@@ -76,7 +76,7 @@ def control():
 
 def grounder_shots():
     print("GROUNDERS!")
-    bot.manual_move("pitch", 90)
+    bot.enqueue_manual_move("pitch")
     for x in range(30):
         print(str(x%3))
         target = x%3 + 1
@@ -84,19 +84,22 @@ def grounder_shots():
 
 def edge_shots():
     print("GRID")
-    bot.manual_move("pitch", 90)
+    bot.enqueue_manual_move("pitch")
     for x in range(10):
-        print(str(x%3))
-        target = x%3 + 1
-        print("Moving to " + str(target) + ", 1")
-        print("Moving to " + str(target) + ", 2")
-        print("Moving to " + str(target) + ", 3")
+        #print(str(x%3))
+        target = x % 3 + 1
+        #print("Moving to " + str(target) + ", 1")
+        #print("Moving to " + str(target) + ", 2")
+        #print("Moving to " + str(target) + ", 3")
         bot.set_target(target, 1)
         bot.set_target(target, 2)
         bot.set_target(target, 3)
+        bot.set_target(1,2)
+        time.sleep(0.1)
 
 def random_shots():
     print("RANDOM!")
+    bot.enqueue_manual_move("pitch")
     bot.set_target(1,1)
     for x in range(30):
         r = random.randint(1,3)

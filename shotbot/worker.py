@@ -20,8 +20,8 @@ app = Flask(
 # set config
 app_settings = os.getenv("APP_SETTINGS")
 app.config.from_object(app_settings)
-#redis_url = app.config["REDIS_URL"]
-redis_url = "redis://localhost:6379/0"
+redis_url = app.config["REDIS_URL"]
+#redis_url = "redis://localhost:6379/0"
 
 #start the worker
 redis_connection = redis.from_url(redis_url)
@@ -29,5 +29,4 @@ with Connection(redis_connection):
     q = Queue()
     q.empty()
     worker = Worker(app.config["QUEUES"])
-#    worker = Worker(["default"])
     worker.work()
