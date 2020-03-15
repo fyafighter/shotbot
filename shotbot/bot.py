@@ -40,6 +40,11 @@ class Bot:
         self.target_y = 2
         return self.get_target()
 
+    def enqueue_manual_move(self, relay):
+        with Connection(redis.from_url(current_app.config["REDIS_URL"])):
+            q = Queue()
+            task = q.enqueue(self.manual_move, relay)
+
     def manual_move(self, relay, timeout=15):
         if relay=='up':
             self.relays['down'].switchOff()
@@ -50,6 +55,7 @@ class Bot:
         if relay=='right':
             self.relays['left'].switchOff()
         self.relays[relay].switch()
+        
 
     def execute_manual_move(self, relay, timeout):
         self.relays[relay].switchOn(timeout)
@@ -123,7 +129,7 @@ class Bot:
             q = Queue()
             #print("Queue size: " + str(q.count))
             task = q.enqueue(self.execute_move, x_move, y_move)
-        return [x_move, y_move, task]
+        #return [x_move, y_move, task]
 
     def level(self):
         self.relays['up'].switchOn(30)
