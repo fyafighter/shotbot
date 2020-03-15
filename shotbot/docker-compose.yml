@@ -5,12 +5,14 @@ services:
   api:
     build: .
     image: api
+    privileged: true
     container_name: api
     ports:
-      - 5004:5000
+      - 5000:5000
     command: python server.py
     volumes:
       - .:/usr/src/app
+      - /dev/gpiomem:/dev/gpiomem
     environment:
       - FLASK_DEBUG=1
       - APP_SETTINGS=config.DevelopmentConfig
@@ -20,8 +22,10 @@ services:
   worker:
     image: api
     command: python worker.py
+    privileged: true
     volumes:
       - .:/usr/src/app
+      - /dev/gpiomem:/dev/gpiomem
     environment:
       - APP_SETTINGS=config.DevelopmentConfig
     depends_on:

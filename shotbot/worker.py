@@ -21,7 +21,6 @@ app = Flask(
 app_settings = os.getenv("APP_SETTINGS")
 app.config.from_object(app_settings)
 redis_url = app.config["REDIS_URL"]
-#redis_url = "redis://localhost:6379/0"
 
 #start the worker
 redis_connection = redis.from_url(redis_url)
