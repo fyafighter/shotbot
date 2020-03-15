@@ -19,10 +19,10 @@ class Bot:
         self.h_rate = 3
         self.relays = {
             "pan": Relay("pan", 5, 90),
-            "up": Relay("up", 6, 30),
-            "down": Relay("down", 13, 30),
-            "left": Relay("left", 16, 90),
-            "right": Relay("right",19 , 90),
+            "up": Relay("up", 6, 15),
+            "down": Relay("down", 13, 15),
+            "left": Relay("left", 16, 15),
+            "right": Relay("right",19 , 15),
             "pitch": Relay("pitch", 26, 90)
         }
         print("Initializing bot and ensuring relays are off")
@@ -41,7 +41,15 @@ class Bot:
         return self.get_target()
 
     def manual_move(self, relay, timeout=15):
-        self.relays[relay].switchOn(timeout)
+        if relay=='up':
+            self.relays['down'].switchOff()
+        if relay=='down':
+            self.relays['up'].switchOff()
+        if relay=='left':
+            self.relays['right'].switchOff()
+        if relay=='right':
+            self.relays['left'].switchOff()
+        self.relays[relay].switch()
 
     def execute_manual_move(self, relay, timeout):
         self.relays[relay].switchOn(timeout)
@@ -113,11 +121,11 @@ class Bot:
             self.target_y = target_y
         with Connection(redis.from_url(current_app.config["REDIS_URL"])):
             q = Queue()
-            print("Queue size: " + str(q.count))
+            #print("Queue size: " + str(q.count))
             task = q.enqueue(self.execute_move, x_move, y_move)
         return [x_move, y_move, task]
 
-    def center(self):
+    def level(self):
         self.relays['up'].switchOn(30)
         time.sleep(30)
         self.relays['down'].switchOn(15)

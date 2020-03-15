@@ -12,6 +12,21 @@ app.config.from_object(app_settings)
 def index():
   return 'Shotbot is online.'
 
+@app.route('/command', methods=['POST'])
+def command():
+  command_param = request.args.get("switch")
+  print(command_param)
+  if (command_param in bot.get_relays()):
+    bot.manual_move(command_param, 30)
+    return jsonify(bot.get_relays())
+  else:
+    if (command_param=='bouncers'): grounder_shots()
+    elif (command_param=='edges'): edge_shots()
+    elif (command_param=='random'): random_shots()
+    elif (command_param=='level') :bot.level() 
+    else: bot.all_stop()
+    return("Running "+ command_param)
+
 @app.route('/target', methods=['PUT', 'GET'])
 def target():
     if (request.method=='GET'):
@@ -32,10 +47,10 @@ def relay():
         bot.manual_move(request.json['relay'], request.json['timeout'])
     return jsonify(target=bot.get_target())
 
-@app.route('/center', methods=['PUT'])
-def center():
+@app.route('/level', methods=['PUT'])
+def level():
     if(request.method=='PUT'):
-        bot.center()
+        bot.level()
     return jsonify(target=bot.get_target())
 
 @app.route('/shotmode', methods=['PUT'])
@@ -58,6 +73,36 @@ def control():
     if (request.method=='PUT'):
         request.json['relay']
         return jsonify(status="online")
+
+def grounder_shots():
+    print("GROUNDERS!")
+    bot.manual_move("pitch", 90)
+    for x in range(30):
+        print(str(x%3))
+        target = x%3 + 1
+        bot.set_target(target, 1)
+
+def edge_shots():
+    print("GRID")
+    bot.manual_move("pitch", 90)
+    for x in range(10):
+        print(str(x%3))
+        target = x%3 + 1
+        print("Moving to " + str(target) + ", 1")
+        print("Moving to " + str(target) + ", 2")
+        print("Moving to " + str(target) + ", 3")
+        bot.set_target(target, 1)
+        bot.set_target(target, 2)
+        bot.set_target(target, 3)
+
+def random_shots():
+    print("RANDOM!")
+    bot.set_target(1,1)
+    for x in range(30):
+        r = random.randint(1,3)
+        r2 = random.randint(1,3)
+        print("Moving to " + str(r) + ", " + str(r2))
+        bot.set_target(r, r2)
 
 if __name__ == '__main__':
     bot = Bot("main_bot")
